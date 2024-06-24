@@ -1,0 +1,19 @@
+{
+    "data": [
+        {
+            "username": "andika",
+            "password": "andika123",
+            "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        },
+        {
+            "username": "alex",
+            "password": "alex123",
+            "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        },
+        {
+            "username": "naufal",
+            "password": "naufal123",
+            "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        }
+    ]
+}
