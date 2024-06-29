@@ -1,5 +1,7 @@
 import socket
 import json
+import base64
+import os
 
 TARGET_IP = "127.0.0.1"
 TARGET_PORT = 8000
@@ -23,6 +25,9 @@ class ChatClient:
             elif (command == 'creategroup'):
                 groupname = j[1].strip()
                 return self.create_group(groupname)
+            elif (command == 'joingroup'):
+                groupname = j[1].strip()
+                return self.join_group(groupname)
             elif (command == 'auth'):
                 username = j[1].strip()
                 password = j[2].strip()
@@ -39,6 +44,12 @@ class ChatClient:
                 for w in j[2:]:
                     message = "{} {}" . format(message, w)
                 return self.sendmessage_group(groupto, message)
+            elif (command == 'sendfile'):
+                usernameto = j[1].strip()
+                filepath = j[2].strip()
+                return self.sendfile(usernameto, filepath)
+            elif (command == 'receivefile'):
+                return self.receivefile()
             elif (command == 'inbox'):
                 return self.inbox()
             elif (command == 'inboxgroup'):
@@ -82,6 +93,7 @@ class ChatClient:
         else:
             return "Error, {}" . format(result['message'])
         
+        
     def login(self, username, password):
         string = "auth {} {} \r\n" . format(username, password)
         result = self.sendstring(string)
@@ -102,6 +114,17 @@ class ChatClient:
             return "message sent to {}" . format(usernameto)
         else:
             return "Error, {}" . format(result['message'])
+        
+    def join_group(self, groupname):
+        if (self.token_id == ""):
+            return "Error, not authorized"
+        string = "joingroup {} {} {} \r\n" . format(self.token_id, groupname, self.realm_id)
+        print(string)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "groupname {} successfully joined " .format(groupname)
+        else:
+            return "Error, {}" . format(result['message'])
 
     def sendmessage_group(self, groupto="xxx", message="xxx"):
         if (self.token_id == ""):
@@ -111,6 +134,35 @@ class ChatClient:
         result = self.sendstring(string)
         if result['status'] == 'OK':
             return "message sent to {}" . format(groupto)
+        else:
+            return "Error, {}" . format(result['message'])
+        
+    def sendfile(self, usernameto="xxx", filepath="xxx"):
+        if (self.token_id == ""):
+            return "Error, not authorized"
+        if not os.path.exists(filepath):
+            return "Error, file not found"
+        
+        with open(filepath, "rb") as file:
+            file_content = file.read()
+            encoded_content = base64.b64encode(file_content)  # Decode byte-string to UTF-8 string
+
+        string = "sendfile {} {} {} {} \r\n" . format(self.token_id, usernameto, encoded_content, filepath)
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "file sent to {}" . format(usernameto)
+        else:
+            return "Error, {}" . format(result['message'])
+    
+    def receivefile(self):
+        if (self.token_id == ""):
+            return "Error, not authorized"
+
+        string = "receivefile {} \r\n" . format(self.token_id)
+
+        result = self.sendstring(string)
+        if result['status'] == 'OK':
+            return "file received from {}" . format(self.token_id)
         else:
             return "Error, {}" . format(result['message'])
 

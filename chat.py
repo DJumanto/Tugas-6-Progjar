@@ -5,14 +5,21 @@ sys.path.append('../')
 from database.database import Database
 from database.group import GroupMessage
 from database.private import PrivateMessage
+from database.file import FileMessage
+import base64
+import os
+from os.path import join, dirname, realpath
+from datetime import datetime
 
 class Chat:
     def __init__(self):
         # databases
         self.user_db = Database('user.json')
         self.group_db = Database('group.json')
+        self.group_user_db = Database('group_user.json')
         self.private_message_db = Database('private_message.json')
         self.group_message_db = Database('group_message.json')
+        self.file_message_db = Database('file_message.json')
 
         self.sessions = {}
         self.server_id = ''
@@ -54,11 +61,31 @@ class Chat:
                 logging.warning("SEND GROUP: session {} send message from {} to {}" . format(
                     sessionid, usernamefrom, groupto))
                 return self.send_message_group(sessionid, usernamefrom, groupto, message)
+            elif (command == 'sendfile'):
+                sessionid = j[1].strip()
+                usernameto = j[2].strip()
+                encoded_content = j[3].strip()
+                filepath = j[4].strip()
+                usernamefrom = self.sessions[sessionid]['username']
+                logging.warning("SEND FILE: session {} send file from {} to {}" . format(sessionid, usernamefrom, usernameto))
+                return self.send_file(usernamefrom, usernameto, encoded_content, filepath)
+            elif (command == 'receivefile'):
+                sessionid = j[1].strip()
+                username = self.sessions[sessionid]['username']
+                logging.warning("RECEIVE FILE: Username {} received file" . format(username))
+                return self.receive_file(username)
             elif(command == 'creategroup'):
                 groupname = j[1].strip()
                 logging.warning(
                     "CREATE GROUP: createing '{}' group" . format(groupname))
                 return self.register_group(groupname)
+            elif(command == 'joingroup'):
+                sessionid = j[1].strip()
+                groupname = j[2].strip()
+                realmid = j[3].strip()
+                username = self.sessions[sessionid]['username']
+                # logging.warning("JOIN GROUP: {} {} {} {}" . format(sessionid, groupname, username, realmid))
+                return self.join_group(username, groupname, realmid)
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
                 username = self.sessions[sessionid]['username']
@@ -67,8 +94,9 @@ class Chat:
             elif (command == 'inboxgroup'):
                 sessionid = j[1].strip()
                 groupname = j[2].strip()
-                logging.warning("INBOX GROUP: {} {}" . format(sessionid, groupname))
-                return self.get_inbox_group(groupname)
+                username = self.sessions[sessionid]['username']
+                logging.warning("INBOX GROUP: {} {}" . format(username, groupname))
+                return self.get_inbox_group(username, groupname)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except KeyError:
@@ -100,6 +128,23 @@ class Chat:
             self.user_db.insert_data(new_user)
             print(new_user)
             return {'status': 'OK', 'realm_id': new_user['realm_id']}
+    
+    def join_group(self, username, groupname, realmid):
+        # print(username, groupname, realmid)
+        user = self.get_user(username)
+        group = self.get_group(groupname)
+        if(not user):
+            return {'status': 'ERROR', 'message': 'User tidak ditemukan'}
+        if(not group):
+            return {'status': 'ERROR', 'message': 'Group tidak ditemukan'}
+        group_user = {
+            'username': user['username'],
+            'groupname': group['name'],
+            'realm_id': realmid
+        }
+        self.group_user_db.insert_data(group_user)
+        return {'status': 'OK', 'message': 'User berhasil join group'}
+    
     
     def register_group(self, groupname):
         is_group_exist = self.get_group(groupname)
@@ -145,10 +190,65 @@ class Chat:
         self.private_message_db.insert_data(message.toDict())
 
         return {'status': 'OK', 'message': 'Message Sent'}
+    
+    def send_file(self, username_from, username_to, encoded_content, filepath):
+    
+        s_fr = self.get_user(username_from)
+        s_to = self.get_user(username_to)
+    
+        if (s_fr == False or s_to == False):
+            return {'status': 'ERROR', 'message': 'User Tidak Ditemukan'}
+    
+        filename = os.path.basename(filepath)    
+
+        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        folder_path = join(dirname(realpath(__file__)), "database/file_send/")
+        os.makedirs(folder_path, exist_ok=True)
+        new_file_name = f"{now}_{username_from}_{username_to}_{filename}"
+        file_destination = join(folder_path, new_file_name)
+        if "b" in encoded_content[0]:
+            msg = encoded_content[2:-1]
+
+            with open(file_destination, "wb") as fh:
+                fh.write(base64.b64decode(msg))
+        else:
+            tail = encoded_content.split()
+
+        message = FileMessage(
+            s_fr['username'],
+            s_fr['realm_id'],
+            s_to['username'],
+            s_to['realm_id'],
+            new_file_name,
+            file_destination
+        )
+    
+        self.file_message_db.insert_data(message.toDict())
+
+        return {'status': 'OK', 'message': 'File Sent'}
+    
+    def receive_file(self, username):
+        folder_path = join(dirname(realpath(__file__)), "realm1/file_receive/", username)
+        os.makedirs(folder_path, exist_ok=True)
+
+        msgs = self.file_message_db.getall_by_key_value('receiver', username)
+        # STUCK Masbro disini
+
+        print(msgs)
+
+        return {'status': 'OK', 'messages': msgs, 'received_files': folder_path}
+    
 
     def send_message_group(self, sessionid, username_from, groupname_dest, message):
         if (sessionid not in self.sessions):
             return {'status': 'ERROR', 'message': 'Session Tidak Ditemukan'}
+        
+        print(username_from, groupname_dest)
+        
+        isUserInGroup = self.group_user_db.is_user_exists_group(username_from, groupname_dest)
+        if (isUserInGroup == False):
+            return {'status': 'ERROR', 'message': 'User tidak memiliki akses ke grup ini'}
+        
         s_fr = self.get_user(username_from)
         s_to = self.get_group(groupname_dest)
 
@@ -170,9 +270,12 @@ class Chat:
         msgs = self.private_message_db.get_by_key_value('receiver', username)
         return {'status': 'OK', 'messages': msgs}
 
-    def get_inbox_group(self, groupname):
-        msgs = self.group_message_db.getall_by_key_value(
-            'receiver_group', groupname)
+    def get_inbox_group(self, username ,groupname):
+        isUserInGroup = self.group_user_db.is_user_exists_group(username, groupname)
+        if (isUserInGroup == False):
+            return {'status': 'ERROR', 'message': 'User tidak memiliki akses ke grup ini'}
+
+        msgs = self.group_message_db.getall_by_key_value('receiver_group', groupname)
         messages_list = self.list_messages(msgs)
         return {'status': 'OK', 'messages': messages_list}
     

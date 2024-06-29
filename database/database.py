@@ -46,6 +46,20 @@ class Database:
         lookup = {d[key]: d for d in self.data}
         return lookup.get(value)
     
+    def is_user_exists_group (self, username, groupname):
+        for obj in self.data:
+            if obj.get("username") == username and obj.get("groupname") == groupname:
+                return True
+        return False
+    
+    # get_by_key_value for username and group in group_user_db
+    def get_by_key_value_group_user(self, key, value):
+        result = []
+        for obj in self.data:
+            if obj.get(key) == value:
+                result.append(obj)
+        return result
+    
     def getall_by_key_value(self, key, value):
         result = []
         for obj in self.data:
