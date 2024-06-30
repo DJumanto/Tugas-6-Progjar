@@ -7,14 +7,12 @@ import sys
 sys.path.append('../')
 from chat import Chat
 
-server_id = 'c8adceb6-b41e-47e2-818a-a38c3451c9a0'
-chatserver = Chat()
-
-
 class ProcessTheClient(threading.Thread):
-    def __init__(self, connection, address):
+    def __init__(self, connection, address, chatserver, server_id):
         self.connection = connection
         self.address = address
+        self.chatserver = chatserver
+        self.server_id = server_id
         threading.Thread.__init__(self)
 
     def run(self):
@@ -27,7 +25,7 @@ class ProcessTheClient(threading.Thread):
                 if rcv[-2:] == '\r\n':
                     # end of command, proses string
                     logging.warning("data dari client: {}" . format(rcv))
-                    hasil = json.dumps(chatserver.proses(rcv, server_id))
+                    hasil = self.chatserver.proses(rcv, self.server_id)
                     hasil = hasil+"\r\n\r\n"
                     logging.warning("balas ke  client: {}" . format(hasil))
                     self.connection.sendall(hasil.encode())
@@ -40,6 +38,8 @@ class ProcessTheClient(threading.Thread):
 class Server(threading.Thread):
     def __init__(self):
         self.the_clients = []
+        self.chatserver = Chat()
+        self.server_id = self.chatserver.get_realm_id()
         self.my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         threading.Thread.__init__(self)
@@ -51,7 +51,7 @@ class Server(threading.Thread):
             self.connection, self.client_address = self.my_socket.accept()
             logging.warning("connection from {}" . format(self.client_address))
 
-            clt = ProcessTheClient(self.connection, self.client_address)
+            clt = ProcessTheClient(self.connection, self.client_address, self.chatserver, self.server_id)
             clt.start()
             self.the_clients.append(clt)
 
@@ -59,7 +59,7 @@ class Server(threading.Thread):
 def main():
     svr = Server()
     svr.start()
-    logging.warning(' REALM-1: running server on port 8000')
+    logging.warning(' REALM1: running server on port 9000')
 
 
 if __name__ == "__main__":

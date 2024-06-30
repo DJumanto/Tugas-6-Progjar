@@ -63,18 +63,20 @@ class ChatClient:
     def sendstring(self, string):
         try:
             self.sock.sendall(string.encode())
-            receivemsg = ""
             while True:
                 data = self.sock.recv(4096)
-                print("diterima dari server", data)
+                # print("diterima dari server", data)
                 if (data):
                     # data harus didecode agar dapat di operasikan dalam bentuk string
-                    receivemsg = "{}{}" . format(receivemsg, data.decode())
+                    receivemsg = data.decode("utf-8")
                     if receivemsg[-4:] == '\r\n\r\n':
+                        data = receivemsg[:-4].strip()
                         print("end of string")
-                        return json.loads(receivemsg)
-        except:
+                        loaded_json = json.loads(data)
+                        return loaded_json
+        except Exception as e:
             self.sock.close()
+            print(e)
             return {'status': 'ERROR', 'message': 'Gagal'}
 
     def register(self, username, password):
