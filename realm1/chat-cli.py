@@ -50,7 +50,8 @@ class ChatClient:
                 filepath = j[2].strip()
                 return self.sendfile(usernameto, filepath)
             elif (command == 'receivefile'):
-                return self.receivefile()
+                sender = j[1].strip()
+                return self.receivefile(sender)
             elif (command == 'inbox'):
                 return self.inbox()
             elif (command == 'inboxgroup'):
@@ -187,11 +188,11 @@ class ChatClient:
         else:
             return "Error, {}" . format(result['message'])
     
-    def receivefile(self):
+    def receivefile(self,sender):
         if (self.token_id == ""):
             return "Error, not authorized"
 
-        string = "receivefile {} \r\n" . format(self.token_id)
+        string = "receivefile {} {} \r\n" . format(self.token_id, sender)
 
         result = self.sendstring(string)
 
