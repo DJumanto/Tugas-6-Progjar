@@ -10,6 +10,7 @@ class Database:
         base_path = Path(__file__).parent.absolute()
         self.file_name = Path(__file__).joinpath(base_path, self.table_name)
         self.data = self.read_db()
+        self.realms = {}
 
     # read_db reads data from file
     def read_db(self):
@@ -44,6 +45,7 @@ class Database:
     # get_by_key_value returns a data by the matching key and value
     def get_by_key_value(self, key, value):
         lookup = {d[key]: d for d in self.data}
+        print(lookup.get(value))
         return lookup.get(value)
     
     def is_user_exists_group (self, username, groupname):
@@ -66,6 +68,14 @@ class Database:
             if obj.get(key) == value:
                 result.append(obj)
         return result
+    
+    # def add_realms(self, realm, ip):
+    #     if realm not in self.realms and realm.startswith("D34dB33F") and realm.endswith("D34dB33F13nD"):
+    #         self.realms[realm] = ip
+    
+    # def send_realms(self):
+    #     return self.realms
+    
         # lookup = {d[key]: d for d in self.data}
         # return lookup.get(value)
     

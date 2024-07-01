@@ -26,6 +26,7 @@ class ProcessTheClient(threading.Thread):
                     # end of command, proses string
                     logging.warning("data dari client: {}" . format(rcv))
                     hasil = self.chatserver.proses(rcv, self.server_id)
+                    print(hasil)
                     hasil = hasil+"\r\n\r\n"
                     logging.warning("balas ke  client: {}" . format(hasil))
                     self.connection.sendall(hasil.encode())
@@ -45,7 +46,7 @@ class Server(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.my_socket.bind(('0.0.0.0', 8000))
+        self.my_socket.bind(('192.168.93.39', 8000))
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()
@@ -59,7 +60,7 @@ class Server(threading.Thread):
 def main():
     svr = Server()
     svr.start()
-    logging.warning(' REALM1: running server on port 9000')
+    logging.warning(' REALM1: running server on port 8000')
 
 
 if __name__ == "__main__":

@@ -14,6 +14,16 @@
             "username": "naufal",
             "password": "naufal123",
             "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        },
+        {
+            "username": "djumanto",
+            "password": "djumanto",
+            "realm_id": "59079955-ebb3-488b-bdc9-1395042d45c4"
+        },
+        {
+            "username": "assalamualaikum",
+            "password": "test123",
+            "realm_id": "2c088585-ceaa-4a08-bd0b-482a6230c00f"
         }
     ]
 }

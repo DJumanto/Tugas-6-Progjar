@@ -23,6 +23,14 @@
             "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
             "message": "  halo aku andika \r\n",
             "created_at": "2024-06-24 20:18:36.009890"
+        },
+        {
+            "sender": "akmal",
+            "sender_realm": "4e98deb7-0a91-4a5f-943e-b71421920f7d",
+            "receiver": "naufal",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "halo aku andika",
+            "created_at": "2024-07-01 01:03:41.132233"
         }
     ]
 }
