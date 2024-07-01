@@ -2,8 +2,9 @@ import socket
 import json
 import base64
 import os
+from datetime import datetime
 
-TARGET_IP = "192.168.93.39"
+TARGET_IP = "127.0.0.1"
 TARGET_PORT = 8000
 
 class ChatClient:
@@ -64,7 +65,7 @@ class ChatClient:
         try:
             self.sock.sendall(string.encode())
             while True:
-                data = self.sock.recv(4096)
+                data = self.sock.recv(10000000)
                 # print("diterima dari server", data)
                 if (data):
                     # data harus didecode agar dapat di operasikan dalam bentuk string
@@ -72,7 +73,9 @@ class ChatClient:
                     if receivemsg[-4:] == '\r\n\r\n':
                         data = receivemsg[:-4].strip()
                         print("end of string")
+                        print(data)
                         loaded_json = json.loads(data)
+                        print('udah di load coy')
                         return loaded_json
         except Exception as e:
             self.sock.close()
@@ -163,10 +166,40 @@ class ChatClient:
         string = "receivefile {} \r\n" . format(self.token_id)
 
         result = self.sendstring(string)
+
+        print('HASIL: ', result)
+
         if result['status'] == 'OK':
-            return "file received from {}" . format(self.token_id)
-        else:
-            return "Error, {}" . format(result['message'])
+            for message in result['content']:
+                filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_ConvoHub_{message['file_name']}"
+                file_content = message['file_content']
+                if(directories := os.path.join(os.getcwd(), "file_receive", message['receiver'])):
+                    os.makedirs(directories, exist_ok=True)
+                file_destination = os.path.join(os.getcwd(), "file_receive", message['receiver'], filename)
+
+                if 'b' in file_content[0]:
+                    msg = file_content[2:-1]
+
+                with open(file_destination, "wb") as file:
+                    file.write(base64.b64decode(msg))
+
+            else:
+                tail = file_content.split()
+            
+            return "file received"
+
+        # file_destination = os.path.join(folder_path, filename)
+
+        # if "b" in result['content'][0]:
+        #     msg = result['content'][2:-1]
+
+        #     with open(file_destination, "wb") as fh:
+        #         fh.write(base64.b64decode(msg))
+
+        # if result['status'] == 'OK':
+        #     return "file received"
+        # else:
+        #     return "Error, {}" . format(result['message'])
 
     def inbox(self):
         if (self.token_id == ""):
@@ -183,8 +216,9 @@ class ChatClient:
             return "Error, not authorized"
         string = "inboxgroup {} {}\r\n" . format(self.token_id, groupname)
         result = self.sendstring(string)
-        if result['status'] != 'OK':
-            # return "{}" . format(json.dumps(result['messages'])):
+        if result['status'] == 'OK':
+            return "{}" . format(result['messages'])
+        else:
             return "Error, {}" . format(result['message'])
 
 

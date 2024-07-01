@@ -21,7 +21,7 @@ class Chat:
     def __init__(self):
         # databases
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = ("192.168.93.39", 8080)
+        self.server_address = ("127.0.0.1", 8080)
         self.socket.connect(self.server_address)
         self.realms = []
         self.sessions = {}
@@ -108,7 +108,6 @@ class Chat:
                 sessionid = j[1].strip()
                 username = self.sessions[sessionid]['username']
                 payload = {
-                    'sessionid': sessionid,
                     'username': username,
                 }
                 return self.receive_file(payload)
@@ -198,52 +197,38 @@ class Chat:
         return data
     
     def send_file(self, payload):
-    
-        s_fr = self.get_user(payload['usernamefrom'])
-        s_to = self.get_user(payload['usernameto'])
-    
-        if (s_fr == False or s_to == False):
-            return {'status': 'ERROR', 'message': 'User Tidak Ditemukan'}
-    
-        filename = os.path.basename(payload['filepath'])    
+        if (payload['sessionid'] not in self.sessions):
+            return {'status': 'ERROR', 'message': 'Session Tidak Ditemukan'}
 
-        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = join(dirname(realpath(__file__)), "database/file_send/")
-        os.makedirs(folder_path, exist_ok=True)
-        new_file_name = f"{now}_{payload['usernamefrom']}_{payload['usernameto']}_{filename}"
-        file_destination = join(folder_path, new_file_name)
-        if "b" in payload['encoded_content'][0]:
-            msg = payload['encoded_content'][2:-1]
+        #     tail = payload['encoded_content'].split()
+                #         payload= {
+                #     'sessionid': sessionid,
+                #     'usernameto': usernameto,
+                #     'filepath': filepath,
+                #     'usernamefrom': usernamefrom, 
+                #     'encoded_content': encoded_content,
+                # }
 
-            with open(file_destination, "wb") as fh:
-                fh.write(base64.b64decode(msg))
-        else:
-            tail = payload['encoded_content'].split()
+        usernameto = payload['usernameto']
+        usernamefrom = payload['usernamefrom']
+        encoded_content = payload['encoded_content']
+        filename = os.path.basename(payload['filepath'])
+                        
 
-        message = FileMessage(
-            s_fr['username'],
-            s_fr['realm_id'],
-            s_to['username'],
-            s_to['realm_id'],
-            new_file_name,
-            file_destination
-        )
-    
         #PAYLOAD SEND MESSAGE FILE
-        status = self.socket.send(message)
-        return {'status': 'OK', 'message': 'File Sent'}
+        status = self.socket.send(f'sendfile\r\nusernamefrom:{usernamefrom}\r\nusernameto:{usernameto}\r\nencoded_content:{encoded_content}\r\nfilename:{filename}\r\n'.encode())
+        return self.socket.recv(4096).decode('utf-8')
     
     def receive_file(self, payload):
-        folder_path = join(dirname(realpath(__file__)), "realm1/file_receive/", payload['username'])
-        os.makedirs(folder_path, exist_ok=True)
 
-        #PAYLOAD RECIEVE FILE MESSAGE
-        msgs = self.file_message_db.getall_by_key_value('receiver', payload['username'])
-        # STUCK Masbro disini
+        username = payload['username']
 
-        print(msgs)
+        self.socket.send(f'receivefile\r\nusername:{username}\r\n'.encode())
 
-        return {'status': 'OK', 'messages': msgs, 'received_files': folder_path}
+        data = self.socket.recv(10000000).decode('utf-8')
+
+        print(len(data))
+        return data
     
 
     def send_message_group(self, payload):
@@ -271,12 +256,13 @@ class Chat:
 
         #PAYLOAD GET MESSAGE IN GROUP
         self.socket.send(f'inboxgroup\r\nusername:{username}\r\ngroupname:{groupname}\r\n'.encode())
-        data =  self.socket.recv(4096).decode('utf-8')
-        if(data['status'] == 'ERROR'):
-            return data
-        else:
-            messages_list = self.list_messages(data)
-            return {'status': 'OK', 'messages': messages_list}
+        return self.socket.recv(4096).decode('utf-8')
+        # if(data['status'] == 'ERROR'):
+        #     return data
+        # else:
+            # messages_list = self.list_messages(data)
+        # print('INI DATA: ', data)
+        # return {'status': 'OK', 'messages': data}
         
     @staticmethod
     def list_messages(msgs):

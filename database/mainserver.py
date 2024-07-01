@@ -81,16 +81,14 @@ class ProcessTheClient(threading.Thread):
                     usernamefrom, groupto))
                 return self.send_message_group(usernamefrom, groupto, message)
             elif (command == 'sendfile'):
-                sessionid = j[1].strip()
+                usernamefrom = j[1].strip()
                 usernameto = j[2].strip()
                 encoded_content = j[3].strip()
-                filepath = j[4].strip()
-                usernamefrom = self.sessions[sessionid]['username']
-                logging.warning("SEND FILE: session {} send file from {} to {}" . format(sessionid, usernamefrom, usernameto))
-                return self.send_file(usernamefrom, usernameto, encoded_content, filepath)
+                filename = j[4].strip()
+                logging.warning("SEND FILE: send file from {} to {}" . format(usernamefrom, usernameto))
+                return self.send_file(usernamefrom, usernameto, encoded_content, filename)
             elif (command == 'receivefile'):
-                sessionid = j[1].strip()
-                username = self.sessions[sessionid]['username']
+                username = j[1].strip()
                 logging.warning("RECEIVE FILE: Username {} received file" . format(username))
                 return self.receive_file(username)
             elif(command == 'creategroup'):
@@ -216,6 +214,10 @@ class ProcessTheClient(threading.Thread):
         return {'status': 'OK', 'message': 'Message Sent'}
     
     def send_file(self, username_from, username_to, encoded_content, filepath):
+        username_from = username_from.split(':')[1].strip()
+        username_to = username_to.split(':')[1].strip()
+        encoded_content = encoded_content.split(':')[1].strip()
+        filename = filepath.split(':')[1].strip()
     
         s_fr = self.get_user(username_from)
         s_to = self.get_user(username_to)
@@ -223,44 +225,42 @@ class ProcessTheClient(threading.Thread):
         if (s_fr == False or s_to == False):
             return {'status': 'ERROR', 'message': 'User Tidak Ditemukan'}
     
-        filename = os.path.basename(filepath)    
+        # filename = os.path.basename(filepath)    
 
-        now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        folder_path = join(dirname(realpath(__file__)), "database/file_send/")
-        os.makedirs(folder_path, exist_ok=True)
-        new_file_name = f"{now}_{username_from}_{username_to}_{filename}"
-        file_destination = join(folder_path, new_file_name)
-        if "b" in encoded_content[0]:
-            msg = encoded_content[2:-1]
+        # now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        # folder_path = join(dirname(realpath(__file__)), "database/file_send/")
+        # os.makedirs(folder_path, exist_ok=True)
+        # new_file_name = f"{now}_{username_from}_{username_to}_{filename}"
+        # file_destination = join(folder_path, new_file_name)
+        # if "b" in encoded_content[0]:
+        #     msg = encoded_content[2:-1]
 
-            with open(file_destination, "wb") as fh:
-                fh.write(base64.b64decode(msg))
-        else:
-            tail = encoded_content.split()
+        #     with open(file_destination, "wb") as fh:
+        #         fh.write(base64.b64decode(msg))
+        # else:
+        #     tail = encoded_content.split()
 
         message = FileMessage(
             s_fr['username'],
             s_fr['realm_id'],
             s_to['username'],
             s_to['realm_id'],
-            new_file_name,
-            file_destination
+            encoded_content,
+            filename
         )
     
         self.file_message_db.insert_data(message.toDict())
 
-        return {'status': 'OK', 'message': 'File Sent'}
+        return {"status": "OK", "message": "File Sent"}
     
     def receive_file(self, username):
-        folder_path = join(dirname(realpath(__file__)), "realm1/file_receive/", username)
-        os.makedirs(folder_path, exist_ok=True)
-
+        username = username.split(':')[1].strip()
         msgs = self.file_message_db.getall_by_key_value('receiver', username)
         # STUCK Masbro disini
 
         print(msgs)
 
-        return {'status': 'OK', 'messages': msgs, 'received_files': folder_path}
+        return {'status': 'OK', 'content': msgs}
     
 
     def send_message_group(self, username_from, groupname_dest, message):
@@ -296,7 +296,7 @@ class ProcessTheClient(threading.Thread):
 
     def get_inbox(self, username):
         username = username.split(':')[1].strip()
-        msgs = self.private_message_db.get_by_key_value('receiver', username)
+        msgs = self.private_message_db.getall_by_key_value('receiver', username)
         return {'status': 'OK', 'messages': msgs}
 
     def get_inbox_group(self, username ,groupname):
@@ -338,7 +338,7 @@ class Server(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.my_socket.bind(('192.168.93.39', 8080))
+        self.my_socket.bind(('127.0.0.1', 8080))
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()
