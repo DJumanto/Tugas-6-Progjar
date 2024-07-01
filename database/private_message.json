@@ -55,6 +55,70 @@
             "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
             "message": "test haloooooo",
             "created_at": "2024-07-01 15:25:29.238364"
+        },
+        {
+            "sender": "sutedjo",
+            "sender_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "receiver": "naufal",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "wanjay masooook",
+            "created_at": "2024-07-02 00:26:25.615021"
+        },
+        {
+            "sender": "sutedjo",
+            "sender_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "test",
+            "created_at": "2024-07-02 00:52:25.535150"
+        },
+        {
+            "sender": "sutedjo",
+            "sender_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "ayo jumatan broo",
+            "created_at": "2024-07-02 00:53:06.198283"
+        },
+        {
+            "sender": "sutedjo",
+            "sender_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "Hallooo dunia final",
+            "created_at": "2024-07-02 00:53:48.598895"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "sutedjo",
+            "receiver_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "message": "lets go jumatan",
+            "created_at": "2024-07-02 00:54:31.710055"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "sutedjo",
+            "receiver_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "message": "djoooooooo tangi brooooo",
+            "created_at": "2024-07-02 01:00:50.238371"
+        },
+        {
+            "sender": "sutedjo",
+            "sender_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "weyy apa bro",
+            "created_at": "2024-07-02 01:05:10.082392"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "sutedjo",
+            "receiver_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "message": "test",
+            "created_at": "2024-07-02 01:14:07.927162"
         }
     ]
 }

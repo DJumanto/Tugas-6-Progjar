@@ -4,7 +4,7 @@ import base64
 import os
 from datetime import datetime
 
-TARGET_IP = "127.0.0.1"
+TARGET_IP = "192.168.243.39"
 TARGET_PORT = 8000
 
 class ChatClient:
@@ -56,6 +56,13 @@ class ChatClient:
             elif (command == 'inboxgroup'):
                 groupname = j[1].strip()
                 return self.inbox_group(groupname)
+            elif (command == 'getallusers'):
+                return self.get_all_users()
+            elif (command == 'inboxbysender'):
+                sender = j[1].strip()
+                return self.get_inbox_by_sender(sender)
+            elif(command == 'getallgroups'):
+                return self.get_groups()
             else:
                 return "*Maaf, command tidak benar"
         except IndexError:
@@ -81,6 +88,27 @@ class ChatClient:
             self.sock.close()
             print(e)
             return {'status': 'ERROR', 'message': 'Gagal'}
+        
+    def get_groups(self):
+        if (self.token_id == ""):
+            return "Error, not authorized"
+        string = "getallgroups {} \r\n".format(self.token_id)
+        result = self.sendstring(string)
+        return result
+    def get_inbox_by_sender(self, sender):
+        if (self.token_id == ""):
+            return "Error, not authorized"
+        string = "inboxbysender {} {} \r\n".format(self.token_id, sender)
+        result = self.sendstring(string)
+        return result
+    def get_all_users(self):
+        string = "getallusers \r\n"
+        result = self.sendstring(string)
+        return result
+        # if result['status'] == 'OK':
+        #     return "{}" . format(json.dumps(result['users']))
+        # else:
+        #     return "Error, {}" . format(result['message'])
 
     def register(self, username, password):
         string = "register {} {} \r\n" . format(username, password)
@@ -216,10 +244,7 @@ class ChatClient:
             return "Error, not authorized"
         string = "inboxgroup {} {}\r\n" . format(self.token_id, groupname)
         result = self.sendstring(string)
-        if result['status'] == 'OK':
-            return "{}" . format(result['messages'])
-        else:
-            return "Error, {}" . format(result['message'])
+        return result
 
 
 if __name__ == "__main__":

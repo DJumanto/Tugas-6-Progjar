@@ -131,8 +131,9 @@ class Chat:
                 return self.join_group(payload)
             elif (command == 'inbox'):
                 sessionid = j[1].strip()
+                sender = j[2].strip()
                 username = self.sessions[sessionid]['username']
-                return self.get_inbox(username)
+                return self.get_inbox_by_sender(username,sender)
             elif (command == 'inboxgroup'):
                 sessionid = j[1].strip()
                 groupname = j[2].strip()
@@ -143,6 +144,16 @@ class Chat:
                     'username': username
                 }
                 return self.get_inbox_group(payload)
+            elif (command == 'getallusers'):
+                return self.get_users()
+            elif (command == 'inboxbysender'):
+                sessionid = j[1].strip()
+                username = self.sessions[sessionid]['username']
+                sender = j[2].strip()
+                return self.get_inbox_by_sender(username, sender)
+            elif (command == 'getallgroups'):
+                sessionid = j[1].strip()
+                return self.get_groups(sessionid)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar'}
         except KeyError:
@@ -150,19 +161,32 @@ class Chat:
         except IndexError:
             return {'status': 'ERROR', 'message': '--Protocol Tidak Benar'}
 
+    def get_groups(self, sessionid):
+        username = self.sessions[sessionid]['username']
+        self.socket.send(f'getallgroups\r\nusername:{username}\r\n'.encode())
+        return self.socket.recv(100000).decode('utf-8')
+    def get_users(self):
+        self.socket.send(f'getallusers\r\n'.encode())
+        return self.socket.recv(100000).decode('utf-8')
+    
+    def get_inbox_by_sender(self, username, sender):
+        self.socket.send(f'inboxbysender\r\nusername:{username}\r\nsender:{sender}\r\n'.encode())
+        return self.socket.recv(4096).decode('utf-8')
+    
     def autentikasi_user(self, payload):
         #TODO: send to main server to check if user exists
         username = payload['username']
         password = payload['password']
         self.socket.send(f'auth\r\nusername:{username}\r\npassword:{password}\r\n'.encode())
 
-        data = self.socket.recv(4096).decode('utf-8')
-        tokenid = json.loads(data)['token_id']
-        print(tokenid)
-        self.sessions[tokenid] = {
-            'username': username
-        }
-        return data
+        data = json.loads(self.socket.recv(4096).decode('utf-8'))
+        if (data['status'] != 'ERROR'):
+            tokenid = data['token_id']
+            print(tokenid)
+            self.sessions[tokenid] = {
+                'username': username
+            }
+        return json.dumps(data)
     
     def register_user(self, payload):
         username = payload['username']
@@ -243,8 +267,8 @@ class Chat:
 
         return self.socket.recv(4096).decode('utf-8')
     
-    def get_inbox(self, username):
-        self.socket.send(f'inbox\r\nusername:{username}\r\n'.encode())
+    def get_inbox_by_sender(self, username, sender):
+        self.socket.send(f'inbox\r\nusername:{username}\r\nsender:{sender}\r\n'.encode())
         return self.socket.recv(4096).decode('utf-8')
 
     def get_inbox_group(self, payload):

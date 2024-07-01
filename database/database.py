@@ -37,6 +37,9 @@ class Database:
     # get_all returns all the data in the database
     def get_all(self):
         return self.data
+    
+    def get_all_by_key(self, key):
+        return [data[key] for data in self.data]
 
     # is_exists checks if a data exists matching by the key and value
     def is_exists(self, key, value):
@@ -62,11 +65,17 @@ class Database:
                 result.append(obj)
         return result
     
-    def getall_by_key_value(self, key, value):
+    def getall_by_key_value(self, key, value, key2=None, value2=None):
         result = []
-        for obj in self.data:
-            if obj.get(key) == value:
-                result.append(obj)
+        if key2 != None:
+            for obj in self.data:
+                if (obj.get(key) == value and obj.get(key2) == value2) or (obj.get(key) == value2 and obj.get(key2) == value):
+                    result.append(obj)
+            return result
+        else:
+            for obj in self.data:
+                if obj.get(key) == value:
+                    result.append(obj)
         return result
     
     # def add_realms(self, realm, ip):

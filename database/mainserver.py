@@ -104,13 +104,20 @@ class ProcessTheClient(threading.Thread):
                 return self.join_group(username, groupname, realmid)
             elif (command == 'inbox'):
                 username = j[1].strip()
+                sender = j[2].strip()
                 logging.warning("INBOX: {}")
-                return self.get_inbox(username)
+                return self.get_inbox_by_spesisic_sender(username,sender)
             elif (command == 'inboxgroup'):
                 username = j[1].strip()
                 groupname = j[2].strip()
                 logging.warning("INBOX GROUP: {} {}" . format(username, groupname))
                 return self.get_inbox_group(username, groupname)
+            elif (command == 'getallusers'):
+                return self.get_all_users()
+            elif (command == 'getallgroups'):
+                username = j[1].strip()
+                print("check in mas bro")
+                return self.get_all_groups(username)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar', 'command': command}
         except KeyError:
@@ -118,6 +125,16 @@ class ProcessTheClient(threading.Thread):
         except IndexError:
             return {'status': 'ERROR', 'message': '--Protocol Tidak Benar', 'command': j}
 
+    def get_all_groups(self, username):
+        username = username.split(':')[1].strip()
+        groups = self.group_user_db.get_by_key_value_group_user('username', username)
+        if(len(groups) == 0):
+            return {'status': 'ERROR', 'message': 'User tidak memiliki akses ke grup'}
+        else:
+            return {'status': 'OK', 'groups': groups}
+    def get_all_users(self):
+        users = self.user_db.get_all_by_key('username')
+        return {'status': 'OK', 'users': users}
     def autentikasi_user(self, username, password):
         username = username.split(':')[1].strip()
         password = password.split(':')[1].strip()
@@ -264,13 +281,9 @@ class ProcessTheClient(threading.Thread):
     
 
     def send_message_group(self, username_from, groupname_dest, message):
-        print("HALOOO this is username")
         username_from = username_from.split(':')[1].strip()
-        print('wish')
         groupname_dest = groupname_dest.split(':')[1].strip()
-        print('wash')
         message = message.split('message:')[1].strip()
-        print('wosh')
         print(username_from, groupname_dest)
         
         isUserInGroup = self.group_user_db.is_user_exists_group(username_from, groupname_dest)
@@ -293,10 +306,13 @@ class ProcessTheClient(threading.Thread):
         self.group_message_db.insert_data(message.toDict())
 
         return {'status': 'OK', 'message': 'Message Sent'}
-
-    def get_inbox(self, username):
+    
+    def get_inbox_by_spesisic_sender(self, username, sender):
         username = username.split(':')[1].strip()
-        msgs = self.private_message_db.getall_by_key_value('receiver', username)
+        sender = sender.split(':')[1].strip()
+        print(username, sender)
+        msgs = self.private_message_db.getall_by_key_value('receiver', username, 'sender', sender)
+        print(msgs)
         return {'status': 'OK', 'messages': msgs}
 
     def get_inbox_group(self, username ,groupname):
@@ -307,8 +323,7 @@ class ProcessTheClient(threading.Thread):
             return {'status': 'ERROR', 'message': 'User tidak memiliki akses ke grup ini'}
 
         msgs = self.group_message_db.getall_by_key_value('receiver_group', groupname)
-        messages_list = self.list_messages(msgs)
-        return {'status': 'OK', 'messages': messages_list}
+        return {'status': 'OK', 'messages': msgs}
     
     @staticmethod
     def list_messages(msgs):
