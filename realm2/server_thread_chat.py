@@ -18,7 +18,7 @@ class ProcessTheClient(threading.Thread):
     def run(self):
         rcv = ""
         while True:
-            data = self.connection.recv(4096)
+            data = self.connection.recv(10000)
             if data:
                 d = data.decode()
                 rcv = rcv+d
@@ -45,7 +45,7 @@ class Server(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.my_socket.bind(('192.168.93.39', 8001))
+        self.my_socket.bind(('localhost', 9010))
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()
@@ -59,7 +59,7 @@ class Server(threading.Thread):
 def main():
     svr = Server()
     svr.start()
-    logging.warning(' REALM1: running server on port 8001')
+    logging.warning(' REALM1: running server on port 9010')
 
 
 if __name__ == "__main__":

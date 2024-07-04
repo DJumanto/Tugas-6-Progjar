@@ -39,6 +39,20 @@
             "username": "akmal",
             "password": "akmal123",
             "realm_id": "2d57c32a-3db9-4b3a-9e90-564e6c67a0bc"
+        },
+        {
+            "username": "aaa",
+            "password": "123"
+        },
+        {
+            "username": "user1",
+            "password": "user1_123",
+            "realm_id": "eb5ca7e1-f54d-4a5d-85d9-9a00d29709e8"
+        },
+        {
+            "username": "user2",
+            "password": "user2_123",
+            "realm_id": "e0c07f65-5cd5-4b20-a72a-bc461a6b6012"
         }
     ]
 }

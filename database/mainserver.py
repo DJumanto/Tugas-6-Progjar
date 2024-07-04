@@ -66,17 +66,13 @@ class ProcessTheClient(threading.Thread):
                 usernamefrom = j[1].strip()
                 usernameto = j[2].strip()
                 message = j[3]
-                print(message)
                 logging.warning("SEND: send message from {} to {}" . format(
                     usernamefrom, usernameto))
                 return self.send_message(usernamefrom, usernameto, message)
             elif (command == 'sendgroup'):
                 usernamefrom = j[1].strip()
-                print(usernamefrom)
                 groupto = j[2].strip()
-                print(groupto)
                 message = j[3]
-                print(message)
                 logging.warning("SEND GROUP: send message from {} to {}" . format(
                     usernamefrom, groupto))
                 return self.send_message_group(usernamefrom, groupto, message)
@@ -116,7 +112,6 @@ class ProcessTheClient(threading.Thread):
                 return self.get_all_users()
             elif (command == 'getallgroups'):
                 username = j[1].strip()
-                print("check in mas bro")
                 return self.get_all_groups(username)
             else:
                 return {'status': 'ERROR', 'message': '**Protocol Tidak Benar', 'command': command}
@@ -139,7 +134,6 @@ class ProcessTheClient(threading.Thread):
         username = username.split(':')[1].strip()
         password = password.split(':')[1].strip()
         user = self.user_db.get_by_key_value('username', username)
-        print(user)
         if not user:
             return {'status': 'ERROR', 'message': 'user tidak ditemukan'}
         if user['password'] != password:
@@ -161,7 +155,6 @@ class ProcessTheClient(threading.Thread):
                 'realm_id': server_id
             }
             self.user_db.insert_data(new_user)
-            print(new_user)
             return {'status': 'OK', 'realm_id': new_user['realm_id']}
     
     def join_group(self, username, groupname, realmid):
@@ -193,7 +186,6 @@ class ProcessTheClient(threading.Thread):
                 'name': groupname,
             }
             self.group_db.insert_data(new_group)
-            print(new_group)
             return {'status': 'OK', 'groupname':groupname}
 
     def get_user(self, username):
@@ -241,22 +233,7 @@ class ProcessTheClient(threading.Thread):
     
         if (s_fr == False or s_to == False):
             return {'status': 'ERROR', 'message': 'User Tidak Ditemukan'}
-    
-        # filename = os.path.basename(filepath)    
-
-        # now = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        # folder_path = join(dirname(realpath(__file__)), "database/file_send/")
-        # os.makedirs(folder_path, exist_ok=True)
-        # new_file_name = f"{now}_{username_from}_{username_to}_{filename}"
-        # file_destination = join(folder_path, new_file_name)
-        # if "b" in encoded_content[0]:
-        #     msg = encoded_content[2:-1]
-
-        #     with open(file_destination, "wb") as fh:
-        #         fh.write(base64.b64decode(msg))
-        # else:
-        #     tail = encoded_content.split()
-
+        
         message = FileMessage(
             s_fr['username'],
             s_fr['realm_id'],
@@ -273,9 +250,6 @@ class ProcessTheClient(threading.Thread):
     def receive_file(self, username):
         username = username.split(':')[1].strip()
         msgs = self.file_message_db.getall_by_key_value('receiver', username)
-        # STUCK Masbro disini
-
-        print(msgs)
 
         return {'status': 'OK', 'content': msgs}
     
@@ -284,7 +258,6 @@ class ProcessTheClient(threading.Thread):
         username_from = username_from.split(':')[1].strip()
         groupname_dest = groupname_dest.split(':')[1].strip()
         message = message.split('message:')[1].strip()
-        print(username_from, groupname_dest)
         
         isUserInGroup = self.group_user_db.is_user_exists_group(username_from, groupname_dest)
         if (isUserInGroup == False):
@@ -310,9 +283,7 @@ class ProcessTheClient(threading.Thread):
     def get_inbox_by_spesisic_sender(self, username, sender):
         username = username.split(':')[1].strip()
         sender = sender.split(':')[1].strip()
-        print(username, sender)
         msgs = self.private_message_db.getall_by_key_value('receiver', username, 'sender', sender)
-        print(msgs)
         return {'status': 'OK', 'messages': msgs}
 
     def get_inbox_group(self, username ,groupname):
@@ -353,7 +324,7 @@ class Server(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.my_socket.bind(('192.168.156.39', 8080))
+        self.my_socket.bind(('localhost', 8080))
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()

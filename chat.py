@@ -21,7 +21,7 @@ class Chat:
     def __init__(self):
         # databases
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = ("192.168.156.39", 8080)
+        self.server_address = ("localhost", 8080)
         self.socket.connect(self.server_address)
         self.realms = []
         self.sessions = {}
@@ -65,8 +65,6 @@ class Chat:
                 message = ""
                 for w in j[3:]:
                     message = "{} {}" . format(message, w)
-                print("DINGDONGGGGGINIBELUMSESSIONCHECK")
-                print(sessionid)
                 usernamefrom = self.sessions[sessionid]['username']
                 payload = {
                     'sessionid': sessionid,
@@ -74,7 +72,6 @@ class Chat:
                     'usernamefrom': usernamefrom,
                     'message': message
                 }
-                print("DINGDONGGGGG")
                 return self.send_message(payload)
             elif (command == 'sendgroup'):
                 sessionid = j[1].strip()
@@ -129,11 +126,6 @@ class Chat:
                     'username': username,
                 }
                 return self.join_group(payload)
-            elif (command == 'inbox'):
-                sessionid = j[1].strip()
-                sender = j[2].strip()
-                username = self.sessions[sessionid]['username']
-                return self.get_inbox_by_sender(username,sender)
             elif (command == 'inboxgroup'):
                 sessionid = j[1].strip()
                 groupname = j[2].strip()
@@ -182,7 +174,6 @@ class Chat:
         data = json.loads(self.socket.recv(4096).decode('utf-8'))
         if (data['status'] != 'ERROR'):
             tokenid = data['token_id']
-            print(tokenid)
             self.sessions[tokenid] = {
                 'username': username
             }
@@ -214,24 +205,14 @@ class Chat:
         usernamefrom = payload['usernamefrom']
         usernameto = payload['usernameto']
         message = payload['message']
-        print(usernamefrom, usernameto, message)
         self.socket.send(f'sendprivate\r\nusername_from:{usernamefrom}\r\nusername_to:{usernameto}\r\nmessage:{message}\r\n'.encode())
         data = self.socket.recv(4096).decode('utf-8')
-        print(data)
         return data
     
     def send_file(self, payload):
         if (payload['sessionid'] not in self.sessions):
             return {'status': 'ERROR', 'message': 'Session Tidak Ditemukan'}
 
-        #     tail = payload['encoded_content'].split()
-                #         payload= {
-                #     'sessionid': sessionid,
-                #     'usernameto': usernameto,
-                #     'filepath': filepath,
-                #     'usernamefrom': usernamefrom, 
-                #     'encoded_content': encoded_content,
-                # }
 
         usernameto = payload['usernameto']
         usernamefrom = payload['usernamefrom']
@@ -250,8 +231,6 @@ class Chat:
         self.socket.send(f'receivefile\r\nusername:{username}\r\n'.encode())
 
         data = self.socket.recv(10000000).decode('utf-8')
-
-        print(len(data))
         return data
     
 
@@ -281,12 +260,6 @@ class Chat:
         #PAYLOAD GET MESSAGE IN GROUP
         self.socket.send(f'inboxgroup\r\nusername:{username}\r\ngroupname:{groupname}\r\n'.encode())
         return self.socket.recv(4096).decode('utf-8')
-        # if(data['status'] == 'ERROR'):
-        #     return data
-        # else:
-            # messages_list = self.list_messages(data)
-        # print('INI DATA: ', data)
-        # return {'status': 'OK', 'messages': data}
         
     @staticmethod
     def list_messages(msgs):

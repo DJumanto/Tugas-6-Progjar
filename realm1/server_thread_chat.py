@@ -26,10 +26,7 @@ class ProcessTheClient(threading.Thread):
                     # end of command, proses string
                     logging.warning("data dari client: {}" . format(rcv))
                     hasil = self.chatserver.proses(rcv, self.server_id)
-                    print('DAH SAMPE SINI COY')
-                    print('HASIL:', hasil)
                     hasil = hasil+"\r\n\r\n"
-                    print('dah lewat sini')
                     logging.warning("balas ke  client: {}" . format(hasil))
                     self.connection.sendall(hasil.encode())
                     rcv = ""
@@ -48,7 +45,7 @@ class Server(threading.Thread):
         threading.Thread.__init__(self)
 
     def run(self):
-        self.my_socket.bind(('127.0.0.1', 8000))
+        self.my_socket.bind(('localhost', 8000))
         self.my_socket.listen(1)
         while True:
             self.connection, self.client_address = self.my_socket.accept()
