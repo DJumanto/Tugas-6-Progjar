@@ -113,6 +113,8 @@ class ChatClient:
             return "Error, {}" . format(result['message'])
         
     def create_group(self, groupname):
+        if (self.token_id == ""):
+            return "Error, not authorized"
         string = "creategroup {} \r\n" . format(groupname)
         result = self.sendstring(string)
         if result['status'] == 'OK':
