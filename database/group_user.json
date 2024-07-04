@@ -14,6 +14,21 @@
             "username": "naufal",
             "groupname": "Belajar",
             "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        },
+        {
+            "username": "akmal",
+            "groupname": "grup-jarkom",
+            "realm_id": "2d57c32a-3db9-4b3a-9e90-564e6c67a0bc"
+        },
+        {
+            "username": "alex",
+            "groupname": "grup-jarkom",
+            "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
+        },
+        {
+            "username": "alex",
+            "groupname": "Belajar",
+            "realm_id": "c8adceb6-b41e-47e2-818a-a38c3451c9a0"
         }
     ]
 }

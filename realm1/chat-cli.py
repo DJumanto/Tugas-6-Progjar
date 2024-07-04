@@ -4,7 +4,7 @@ import base64
 import os
 from datetime import datetime
 
-TARGET_IP = "192.168.243.39"
+TARGET_IP = "127.0.0.1"
 TARGET_PORT = 8000
 
 class ChatClient:

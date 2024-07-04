@@ -21,7 +21,7 @@ class Chat:
     def __init__(self):
         # databases
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_address = ("127.0.0.1", 8080)
+        self.server_address = ("192.168.156.39", 8080)
         self.socket.connect(self.server_address)
         self.realms = []
         self.sessions = {}

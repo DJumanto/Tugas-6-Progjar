@@ -34,6 +34,11 @@
             "username": "sutedjo",
             "password": "sutedjo",
             "realm_id": "bbc5af77-386e-4737-959c-53096559af6d"
+        },
+        {
+            "username": "akmal",
+            "password": "akmal123",
+            "realm_id": "2d57c32a-3db9-4b3a-9e90-564e6c67a0bc"
         }
     ]
 }

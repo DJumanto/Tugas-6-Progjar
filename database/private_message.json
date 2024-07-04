@@ -119,6 +119,62 @@
             "receiver_realm": "bbc5af77-386e-4737-959c-53096559af6d",
             "message": "test",
             "created_at": "2024-07-02 01:14:07.927162"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "alex",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "test",
+            "created_at": "2024-07-02 10:45:51.924609"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "alex",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "assalamualaikum",
+            "created_at": "2024-07-02 11:00:50.224576"
+        },
+        {
+            "sender": "alex",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "waalaikum sayang",
+            "created_at": "2024-07-02 11:01:11.562439"
+        },
+        {
+            "sender": "alex",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "sutedjo",
+            "receiver_realm": "bbc5af77-386e-4737-959c-53096559af6d",
+            "message": "tes",
+            "created_at": "2024-07-02 11:21:18.464140"
+        },
+        {
+            "sender": "andika",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "akmal",
+            "receiver_realm": "2d57c32a-3db9-4b3a-9e90-564e6c67a0bc",
+            "message": "halo akmal",
+            "created_at": "2024-07-02 11:38:36.856345"
+        },
+        {
+            "sender": "akmal",
+            "sender_realm": "2d57c32a-3db9-4b3a-9e90-564e6c67a0bc",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "Hiiii",
+            "created_at": "2024-07-02 11:38:57.011821"
+        },
+        {
+            "sender": "alex",
+            "sender_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "receiver": "andika",
+            "receiver_realm": "c8adceb6-b41e-47e2-818a-a38c3451c9a0",
+            "message": "halo andika dari alex",
+            "created_at": "2024-07-02 11:39:05.312719"
         }
     ]
 }
